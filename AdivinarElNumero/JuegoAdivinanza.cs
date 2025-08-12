@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,14 @@ namespace AdivinarElNumero
         private int numeroSecreto;
         private int numeroIngresado;
         private int limite;
-        private int MaxIntentos = 10;
+        private int maxIntentos = 10;
         private bool juegoTerminado = false;
+
+        public string Jugador
+        {
+            get { return jugador; }
+            set { jugador = value; }
+        }
 
         public int NumeroIngresado
         {
@@ -27,11 +34,34 @@ namespace AdivinarElNumero
             set { juegoTerminado = value; }
         }
 
-        public JuegoAdivinanza(string jugador, int MaxIntentos, int limite)
+        public int MaxIntentos
         {
-            this.jugador = jugador;
-            this.MaxIntentos = MaxIntentos;
-            this.limite = limite;
+            get { return MaxIntentos; }
+            set { MaxIntentos = value; }
+        }
+
+        public int Limite
+        {
+            get { return limite; }
+            set { limite = value; }
+        }
+
+        public JuegoAdivinanza()
+        {
+            Saludo();
+        }
+
+        public void Saludo()
+        {
+            LimpiarConsola();
+            Console.WriteLine("Bienvenido a Adivina el Número");
+            Console.Write("Por favor, introduce tu nombre: ");
+            this.jugador = Console.ReadLine();
+            Console.Write("Introduce el límite superior del número a adivinar: ");
+            this.limite = (int)Convert.ToInt64(Console.ReadLine());
+            Console.Write("Introduce el número máximo de intentos: ");
+            this.maxIntentos = (int)Convert.ToInt64(Console.ReadLine());
+
             this.numeroSecreto = generarNumero(limite);
         }
 
@@ -40,15 +70,15 @@ namespace AdivinarElNumero
             return new Random().Next(1, limite);
         }
 
-        public void pedirNombre()
+        public void mostrarNombre()
         {
             Console.WriteLine("Hola " + this.jugador + ", ¡comencemos el juego!");
         }
 
         public void pedirNumero()
         {
-            Console.WriteLine("Adivina el número secreto entre 1 y " + this.limite);
-            Console.WriteLine("Tienes " + this.MaxIntentos + " intentos para adivinarlo.");
+            Console.WriteLine("\nAdivina el número secreto entre 1 y " + this.limite);
+            Console.WriteLine("Tienes " + this.maxIntentos + " intentos para adivinarlo.");
             Console.Write("Introduce un número:");
             this.numeroIngresado = (int)Convert.ToInt64(Console.ReadLine());
         }
@@ -57,40 +87,47 @@ namespace AdivinarElNumero
         {
             while (this.numeroIngresado != this.numeroSecreto && !juegoTerminado)
             {
-                pedirNumero();
-                if (this.numeroIngresado < this.numeroSecreto)
+                if(this.maxIntentos == 0)
                 {
-                    this.MaxIntentos--;
-                    Console.WriteLine("El número es mayor que " + this.numeroIngresado);
-                }
-                else if (this.numeroIngresado > this.numeroSecreto)
-                {
-                    this.MaxIntentos--;
-                    Console.WriteLine("El número es menor que " + this.numeroIngresado);
+                    LimpiarConsola();
+                    Console.WriteLine("¡Has Perdido! Te quedaste sin Intentos");
+                    Console.WriteLine("El número Secreto era: "+this.numeroSecreto);
+                    JuegoTerminado = true;
                 }
                 else
                 {
-                    Console.WriteLine("¡Felicidades! Has adivinado el número secreto: " + this.numeroSecreto);
+                    pedirNumero();
+                    if (this.numeroIngresado < this.numeroSecreto)
+                    {
+                        this.maxIntentos--;
+                        Console.WriteLine("El número es mayor que " + this.numeroIngresado);
+                    }
+                    else if (this.numeroIngresado > this.numeroSecreto)
+                    {
+                        this.maxIntentos--;
+                        Console.WriteLine("El número es menor que " + this.numeroIngresado);
+                    }
+                    else
+                    {
+                        Console.WriteLine("¡Felicidades! Has adivinado el número secreto: " + this.numeroSecreto);
+                    }
                 }
             }
-            VolverAJugar();
         }
 
-        public string VolverAJugar()
+        public void VolverAJugar()
         {
             Console.WriteLine("¿Quieres volver a jugar? (s/n)");
             string respuesta = Console.ReadLine().ToLower();
             if (respuesta == "s" || respuesta == "S")
             {
                 this.juegoTerminado = false;
-                this.numeroSecreto = generarNumero(this.limite);
-                this.MaxIntentos = 10;
-                return "¡Comencemos de nuevo!";
+                Saludo();
             }
             else
             {
                 this.juegoTerminado = true;
-                return "Gracias por jugar, " + this.jugador + "!";
+                Console.WriteLine("Gracias por jugar, " + this.jugador + "!");
             }
         }
 
